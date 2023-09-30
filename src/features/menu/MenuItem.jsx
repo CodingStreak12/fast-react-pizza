@@ -1,12 +1,17 @@
 import { formatCurrency } from "../../utils/helpers";
 import Button from "../../ui/Button";
-import { useDispatch } from "react-redux";
-import { addItems } from "../cart/cartItemsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { addItems, getCurrentItemQuantity } from "../cart/cartItemsSlice";
+import DeleteItem from "../cart/DeleteItem";
+import UpdateItemQuantity from "../cart/UpdateItemQuantity";
 
 /* eslint-disable react/prop-types */
 function MenuItem({ pizza }) {
   const { id, name, unitPrice, ingredients, soldOut, imageUrl } = pizza;
   const dispatch = useDispatch();
+
+  const currentQuantity = useSelector(getCurrentItemQuantity(id));
+  const isInCart = currentQuantity > 0;
 
   function handleAddToCart() {
     const newItem = {
@@ -37,7 +42,13 @@ function MenuItem({ pizza }) {
           ) : (
             <p className="font-medium uppercase text-stone-500">Sold out</p>
           )}
-          {!soldOut && (
+
+          <div className="flex items-center gap-3 sm:gap-8">
+            {isInCart && <UpdateItemQuantity pizzaId={id} />}
+
+            {isInCart && <DeleteItem id={id} />}
+          </div>
+          {!soldOut && !isInCart && (
             <Button type="small" onClick={handleAddToCart}>
               Add to cart
             </Button>
